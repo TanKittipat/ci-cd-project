@@ -6,27 +6,28 @@ WORKDIR /app
 # copy package.json and package-lock.json to workdir
 COPY package*.json ./
 
-# install app dependencies or npm ci
+# install app dependencies
 RUN npm ci
 
-# copy everyting (sourcecode) to docker env (workdir)
+# copy source code to the container
 COPY . ./
 
-# build production
+# build production files
 RUN npm run build
 
-#Stage 2
+# Stage 2: Nginx serving the app
 FROM nginx:1.25.0-alpine AS production-stage
 
+# set working directory in Nginx container
 WORKDIR /usr/share/nginx/html
 
-#remove all default files nginx 
+# remove all default files from Nginx
 RUN rm -rf ./*
 
-#copy nginx.conf
+# copy nginx.conf for custom config
 COPY nginx.conf /etc/nginx/nginx.conf
 
-#copy all files and folder (dist) to workdir
-COPY --from=build-stage /app/dist ./
+# copy build output from the build stage
+COPY --from=build-stage /app/dist ./  # Ensure 'dist' folder is correct
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
