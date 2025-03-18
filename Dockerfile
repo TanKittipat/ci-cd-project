@@ -1,23 +1,32 @@
-# Use the official Node.js image as the base image
-FROM node
+FROM node:18-alpine AS build-stage
 
-# Set the working directory
+# set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# copy package.json and package-lock.json to workdir
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# install app dependencies or npm ci
+RUN npm ci
 
-# Copy the rest of the application code
-COPY . .
+# copy everyting (sourcecode) to docker env (workdir)
+COPY . ./
 
-# Build the application
+# build production
 RUN npm run build
 
-# Expose the port the app runs on
-EXPOSE 3000
+#Stage 2
+FROM nginx:1.25.0-alpine AS production-stage
 
-# Start the application
-CMD ["npm", "run", "serve"]
+WORKDIR /usr/share/nginx/html
+
+#remove all default files nginx 
+RUN rm -rf ./*
+
+#copy nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+
+#copy all files and folder (dist) to workdir
+COPY --from=build-stage /app/dist ./
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
