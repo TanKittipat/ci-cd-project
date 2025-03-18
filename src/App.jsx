@@ -18,7 +18,7 @@ function App() {
             <h1 className="mb-5 text-5xl font-bold">
               ระบบเยี่ยมบ้านโรงเรียนบางแพปฐมพิทยา
             </h1>
-            {/* Mockup page Edit */}
+            {/* Mockup page Edit EIEI*/}
             <button className="btn btn-neutral">ลงชื่อเข้าใช้งาน</button>
           </div>
         </div>
